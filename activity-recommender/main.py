@@ -1,7 +1,15 @@
+import logging
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 
 from recommender import get_recommendations
+
+# Set root logger to DEBUG so logs reach the OTel LoggingHandler
+# (added by opentelemetry-instrument auto-instrumentation).
+# Don't use basicConfig(force=True) as it removes the OTel handler.
+logging.getLogger().setLevel(logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Activity Recommender", version="1.0.0")
 
@@ -23,6 +31,16 @@ class Recommendation(BaseModel):
 
 @app.post("/api/recommendations", response_model=Recommendation)
 def recommend(weather: WeatherInput) -> Recommendation:
+    logger.info(
+        "Received recommendation request: temp=%.1f, feels_like=%.1f, weather_code=%d, wind=%.1f, precip=%.1f, is_day=%d",
+        weather.temperature,
+        weather.apparent_temperature,
+        weather.weather_code,
+        weather.wind_speed,
+        weather.precipitation,
+        weather.is_day,
+    )
+
     result = get_recommendations(
         temperature=weather.temperature,
         apparent_temperature=weather.apparent_temperature,
@@ -31,9 +49,18 @@ def recommend(weather: WeatherInput) -> Recommendation:
         precipitation=weather.precipitation,
         is_day=weather.is_day,
     )
-    return Recommendation(**result)
+    recommendation = Recommendation(**result)
+
+    logger.info(
+        "Returning %d activities and %d clothing items",
+        len(recommendation.activities),
+        len(recommendation.clothing),
+    )
+
+    return recommendation
 
 
 @app.get("/health")
 def health():
+    logger.debug("Health check called")
     return {"status": "healthy"}
