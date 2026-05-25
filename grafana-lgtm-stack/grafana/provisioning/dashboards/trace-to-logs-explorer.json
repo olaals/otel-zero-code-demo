@@ -14,6 +14,18 @@
         "options": [],
         "query": "",
         "hide": 0
+      },
+      {
+        "name": "statusFilter",
+        "label": "Status",
+        "type": "custom",
+        "query": "All : {},Errors only : {status=error}",
+        "current": { "selected": true, "text": "All", "value": "{}" },
+        "options": [
+          { "selected": true, "text": "All", "value": "{}" },
+          { "selected": false, "text": "Errors only", "value": "{status=error}" }
+        ],
+        "hide": 0
       }
     ]
   },
@@ -40,7 +52,7 @@
           "url_options": {
             "method": "GET",
             "params": [
-              { "key": "q", "value": "{}" },
+              { "key": "q", "value": "$statusFilter" },
               { "key": "limit", "value": "100" },
               { "key": "start", "value": "${__from:date:seconds}" },
               { "key": "end", "value": "${__to:date:seconds}" }

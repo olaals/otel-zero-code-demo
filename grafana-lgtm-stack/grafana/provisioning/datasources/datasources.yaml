@@ -9,7 +9,16 @@ datasources:
     isDefault: false
     jsonData:
       derivedFields:
-        - datasourceUid: tempo
+        - name: TraceID
+          matcherRegex: "trace_id"
+          matcherType: label
+          datasourceUid: tempo
+          urlDisplayLabel: View Trace
+        - name: TraceExplorer
+          matcherRegex: "trace_id"
+          matcherType: label
+          url: "/d/trace-to-logs-explorer/trace-to-logs-explorer?var-traceId=$${__value.raw}&from=now-1h&to=now"
+          urlDisplayLabel: View in Trace Explorer
 
   - name: Tempo
     type: tempo
