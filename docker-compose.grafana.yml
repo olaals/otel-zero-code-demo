@@ -95,6 +95,9 @@ services:
     environment:
       ASPNETCORE_URLS: "http://+:8080"
       ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=weatherwatch;Username=weatherwatch;Password=weatherwatch"
+      OTEL_SERVICE_NAME: "weatherwatch"
+      OTEL_RESOURCE_ATTRIBUTES: "service.namespace=weatherwatch,service.version=1.0.0"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
       ActivityRecommender__BaseUrl: "http://activity-recommender:8000"
     depends_on:
       db:

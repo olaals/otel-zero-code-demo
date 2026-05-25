@@ -20,6 +20,12 @@ WORKDIR /app
 COPY --from=backend-build /app/publish ./
 COPY --from=frontend-build /app/frontend/dist ./wwwroot/
 
+# Install OpenTelemetry .NET Automatic Instrumentation
+ARG OTEL_VERSION=1.9.0
+RUN apt-get update && apt-get install -y curl unzip \
+    && curl -sSfL https://github.com/open-telemetry/opentelemetry-dotnet-instrumentation/releases/download/v${OTEL_VERSION}/otel-dotnet-auto-install.sh -o otel-dotnet-auto-install.sh \
+    && sh otel-dotnet-auto-install.sh
+
 EXPOSE 8080
 
-ENTRYPOINT ["dotnet", "WeatherWatch.dll"]
+ENTRYPOINT ["/bin/sh", "-c", ". /root/.otel-dotnet-auto/instrument.sh && dotnet WeatherWatch.dll"]
