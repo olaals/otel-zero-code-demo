@@ -1,0 +1,131 @@
+services:
+  # ── Database ──────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: weatherwatch
+      POSTGRES_USER: weatherwatch
+      POSTGRES_PASSWORD: weatherwatch
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U weatherwatch"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Grafana LGTM Stack ───────────────────────────────────
+  loki:
+    image: grafana/loki:3.4.3
+    command: -config.file=/etc/loki/config.yaml
+    volumes:
+      - ./grafana-lgtm-stack/loki/config.yaml:/etc/loki/config.yaml:ro
+      - loki-data:/loki
+    ports:
+      - "3100:3100"
+
+  tempo:
+    image: grafana/tempo:2.7.2
+    command: -config.file=/etc/tempo/config.yaml
+    volumes:
+      - ./grafana-lgtm-stack/tempo/config.yaml:/etc/tempo/config.yaml:ro
+      - tempo-data:/var/tempo
+    ports:
+      - "3200:3200"
+    depends_on:
+      - mimir
+
+  mimir:
+    image: grafana/mimir:2.15.1
+    command: -config.file=/etc/mimir/config.yaml
+    volumes:
+      - ./grafana-lgtm-stack/mimir/config.yaml:/etc/mimir/config.yaml:ro
+      - mimir-data:/data/mimir
+    ports:
+      - "9009:9009"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.121.0
+    command: --config=/etc/otelcol/config.yaml
+    volumes:
+      - ./grafana-lgtm-stack/otel-collector/config.yaml:/etc/otelcol/config.yaml:ro
+    ports:
+      - "4317:4317"
+      - "13133:13133"
+    depends_on:
+      - loki
+      - tempo
+      - mimir
+    restart: on-failure
+
+  grafana:
+    image: grafana/grafana:11.5.2
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_FEATURE_TOGGLES_ENABLE: traceqlEditor traceQLStreaming metricsSummary
+    volumes:
+      - ./grafana-lgtm-stack/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loki
+      - tempo
+      - mimir
+
+  # ── Application Services ─────────────────────────────────
+  activity-recommender:
+    build:
+      context: ./activity-recommender
+    ports:
+      - "8000:8000"
+    environment:
+      OTEL_SERVICE_NAME: "activity-recommender"
+      OTEL_RESOURCE_ATTRIBUTES: "service.namespace=weatherwatch,service.version=1.0.0"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_LOGS_EXPORTER: "otlp"
+      OTEL_METRICS_EXPORTER: "otlp"
+      OTEL_TRACES_EXPORTER: "otlp"
+      OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED: "true"
+      OTEL_PYTHON_LOG_CORRELATION: "true"
+    depends_on:
+      - otel-collector
+    restart: on-failure
+
+  app:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=weatherwatch;Username=weatherwatch;Password=weatherwatch"
+      OTEL_SERVICE_NAME: "weatherwatch"
+      OTEL_RESOURCE_ATTRIBUTES: "service.namespace=weatherwatch,service.version=1.0.0"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_LOGS_EXPORTER: "otlp"
+      OTEL_METRICS_EXPORTER: "otlp"
+      OTEL_TRACES_EXPORTER: "otlp"
+      ActivityRecommender__BaseUrl: "http://activity-recommender:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+      activity-recommender:
+        condition: service_started
+    restart: on-failure
+
+volumes:
+  pgdata:
+  loki-data:
+  tempo-data:
+  mimir-data:
+  grafana-data:

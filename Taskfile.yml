@@ -26,3 +26,31 @@ tasks:
     desc: Follow app container logs
     cmds:
       - docker compose logs -f app
+
+  # ── Grafana LGTM Stack ──────────────────────────────────
+  grafana:
+    desc: Build and start all services with Grafana LGTM stack
+    cmds:
+      - docker compose -f docker-compose.grafana.yml up --build -d
+      - task: grafana:urls
+
+  grafana:down:
+    desc: Stop and remove Grafana LGTM stack
+    cmds:
+      - docker compose -f docker-compose.grafana.yml down
+
+  grafana:urls:
+    desc: Print clickable service URLs for Grafana stack
+    silent: true
+    cmds:
+      - echo ""
+      - echo "  App                    http://localhost:8080"
+      - echo "  Activity Recommender   http://localhost:8000"
+      - echo "  Grafana                http://localhost:3000"
+      - echo "  OTel Collector Health  http://localhost:13133"
+      - echo ""
+
+  grafana:logs:
+    desc: Follow all container logs for Grafana stack
+    cmds:
+      - docker compose -f docker-compose.grafana.yml logs -f
