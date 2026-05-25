@@ -84,6 +84,12 @@ services:
       context: ./activity-recommender
     ports:
       - "8000:8000"
+    environment:
+      OTEL_SERVICE_NAME: "activity-recommender"
+      OTEL_RESOURCE_ATTRIBUTES: "service.namespace=weatherwatch,service.version=1.0.0"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
+      OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED: "true"
+      OTEL_PYTHON_LOG_CORRELATION: "true"
     restart: on-failure
 
   app:

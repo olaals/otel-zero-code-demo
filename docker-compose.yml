@@ -28,6 +28,12 @@ services:
       context: ./activity-recommender
     ports:
       - "8000:8000"
+    environment:
+      OTEL_SERVICE_NAME: "activity-recommender"
+      OTEL_RESOURCE_ATTRIBUTES: "service.namespace=demo,service.version=1.0.0"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://aspire-dashboard:18889"
+      OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED: "true"
+      OTEL_PYTHON_LOG_CORRELATION: "true"
     depends_on:
       aspire-dashboard:
         condition: service_started
