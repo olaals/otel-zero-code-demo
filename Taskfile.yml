@@ -17,8 +17,9 @@ tasks:
     silent: true
     cmds:
       - echo ""
-      - echo "  App              http://localhost:8080"
-      - echo "  Aspire Dashboard http://localhost:18888"
+      - echo "  App                    http://localhost:8080"
+      - echo "  Aspire Dashboard       http://localhost:18888"
+      - echo "  Activity Recommender   http://localhost:8000"
       - echo ""
 
   logs:

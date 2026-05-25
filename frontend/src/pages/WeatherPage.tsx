@@ -6,8 +6,9 @@ import styled from 'styled-components';
 
 import { CurrentWeather } from '../components/CurrentWeather';
 import { ForecastTable } from '../components/ForecastTable';
-import { fetchWeather, getFavorites, addFavorite, removeFavorite } from '../api/weatherApi';
-import type { WeatherResponse, Favorite } from '../types/weather';
+import { Recommendations } from '../components/Recommendations';
+import { fetchWeather, fetchRecommendations, getFavorites, addFavorite, removeFavorite } from '../api/weatherApi';
+import type { WeatherResponse, Favorite, Recommendation } from '../types/weather';
 
 const Content = styled.main`
   max-width: 960px;
@@ -53,6 +54,7 @@ export function WeatherPage() {
   const locationName = searchParams.get('name') ?? 'Unknown location';
 
   const [weather, setWeather] = useState<WeatherResponse | null>(null);
+  const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
@@ -83,8 +85,12 @@ export function WeatherPage() {
       setLoading(true);
       setError(null);
       try {
-        const data = await fetchWeather(latitude, longitude);
+        const [data, recs] = await Promise.all([
+          fetchWeather(latitude, longitude),
+          fetchRecommendations(latitude, longitude),
+        ]);
         setWeather(data);
+        setRecommendation(recs);
       } catch {
         setError('Failed to load weather data. Please try again.');
       } finally {
@@ -144,6 +150,7 @@ export function WeatherPage() {
       {!loading && weather && (
         <>
           <CurrentWeather weather={weather} locationName={locationName} />
+          {recommendation && <Recommendations recommendation={recommendation} />}
           <ForecastTable weather={weather} />
         </>
       )}

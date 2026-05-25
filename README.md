@@ -7,15 +7,17 @@ A full-stack weather application demonstrating OpenTelemetry zero-code (automati
 - **Backend:** ASP.NET Core 8 Web API
 - **Frontend:** React 18 + Vite + Equinor EDS
 - **Database:** PostgreSQL 16
+- **Activity Recommender:** Python FastAPI microservice
 - **Observability:** OpenTelemetry .NET Auto-Instrumentation + Aspire Dashboard
 
 ## Ports
 
-| Service          | URL                        | Description                        |
-| ---------------- | -------------------------- | ---------------------------------- |
-| App              | http://localhost:8080       | WeatherWatch application           |
-| Aspire Dashboard | http://localhost:18888      | Traces, structured logs, metrics   |
-| PostgreSQL       | localhost:5433              | Database (user/pass: weatherwatch) |
+| Service              | URL                        | Description                            |
+| -------------------- | -------------------------- | -------------------------------------- |
+| App                  | http://localhost:8080       | WeatherWatch application               |
+| Aspire Dashboard     | http://localhost:18888      | Traces, structured logs, metrics       |
+| Activity Recommender | http://localhost:8000       | Activity & clothing recommendations API|
+| PostgreSQL           | localhost:5433              | Database (user/pass: weatherwatch)     |
 
 ## Prerequisites
 

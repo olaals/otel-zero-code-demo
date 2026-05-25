@@ -11,6 +11,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // HTTP client for Open-Meteo
 builder.Services.AddHttpClient<OpenMeteoService>();
 
+// HTTP client for Activity Recommender
+builder.Services.AddHttpClient("ActivityRecommender", client =>
+{
+    var baseUrl = builder.Configuration["ActivityRecommender:BaseUrl"] ?? "http://localhost:8000";
+    client.BaseAddress = new Uri(baseUrl);
+});
+
 // Controllers
 builder.Services.AddControllers();
 

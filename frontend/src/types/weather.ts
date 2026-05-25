@@ -53,6 +53,12 @@ export interface WeatherResponse {
   daily_units: Record<string, string>;
 }
 
+export interface Recommendation {
+  activities: string[];
+  clothing: string[];
+  summary: string;
+}
+
 export function getWeatherDescription(code: number): string {
   const descriptions: Record<number, string> = {
     0: 'Clear sky',

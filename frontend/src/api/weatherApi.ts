@@ -1,4 +1,4 @@
-import type { WeatherResponse, GeocodingResponse, Favorite } from '../types/weather';
+import type { WeatherResponse, GeocodingResponse, Favorite, Recommendation } from '../types/weather';
 
 const API_BASE = '/api';
 
@@ -38,4 +38,10 @@ export async function addFavorite(fav: {
 export async function removeFavorite(id: number): Promise<void> {
   const res = await fetch(`${API_BASE}/favorites/${id}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Failed to remove favorite');
+}
+
+export async function fetchRecommendations(lat: number, lon: number): Promise<Recommendation> {
+  const res = await fetch(`${API_BASE}/recommendations?lat=${lat}&lon=${lon}`);
+  if (!res.ok) throw new Error('Failed to fetch recommendations');
+  return res.json();
 }
