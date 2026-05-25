@@ -1,0 +1,27 @@
+version: "3"
+
+tasks:
+  run:
+    desc: Build and start all services
+    cmds:
+      - docker compose up --build -d
+      - task: urls
+
+  down:
+    desc: Stop and remove all containers
+    cmds:
+      - docker compose down
+
+  urls:
+    desc: Print clickable service URLs
+    silent: true
+    cmds:
+      - echo ""
+      - echo "  App              http://localhost:8080"
+      - echo "  Aspire Dashboard http://localhost:18888"
+      - echo ""
+
+  logs:
+    desc: Follow app container logs
+    cmds:
+      - docker compose logs -f app
