@@ -28,6 +28,17 @@ services:
       context: ./activity-recommender
     ports:
       - "8000:8000"
+    environment:
+      OTEL_SERVICE_NAME: "activity-recommender"
+      OTEL_RESOURCE_ATTRIBUTES: "service.namespace=demo,service.version=1.0.0"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://aspire-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_LOGS_EXPORTER: "otlp"
+      OTEL_METRICS_EXPORTER: "otlp"
+      OTEL_TRACES_EXPORTER: "otlp"
+    depends_on:
+      aspire-dashboard:
+        condition: service_started
 
   app:
     build:
