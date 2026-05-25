@@ -10,7 +10,7 @@ tasks:
   down:
     desc: Stop and remove all containers
     cmds:
-      - docker compose down
+      - docker compose down -v
 
   urls:
     desc: Print clickable service URLs
@@ -37,7 +37,7 @@ tasks:
   grafana:down:
     desc: Stop and remove Grafana LGTM stack
     cmds:
-      - docker compose -f docker-compose.grafana.yml down
+      - docker compose -f docker-compose.grafana.yml down -v
 
   grafana:urls:
     desc: Print clickable service URLs for Grafana stack

@@ -55,6 +55,7 @@ export function WeatherPage() {
 
   const [weather, setWeather] = useState<WeatherResponse | null>(null);
   const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
+  const [recommendationError, setRecommendationError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
@@ -84,10 +85,14 @@ export function WeatherPage() {
     (async () => {
       setLoading(true);
       setError(null);
+      setRecommendationError(false);
       try {
         const [data, recs] = await Promise.all([
           fetchWeather(latitude, longitude),
-          fetchRecommendations(latitude, longitude).catch(() => null),
+          fetchRecommendations(latitude, longitude).catch(() => {
+            setRecommendationError(true);
+            return null;
+          }),
         ]);
         setWeather(data);
         setRecommendation(recs);
@@ -150,7 +155,9 @@ export function WeatherPage() {
       {!loading && weather && (
         <>
           <CurrentWeather weather={weather} locationName={locationName} />
-          {recommendation && <Recommendations recommendation={recommendation} />}
+          {(recommendation || recommendationError) && (
+            <Recommendations recommendation={recommendation} error={recommendationError} />
+          )}
           <ForecastTable weather={weather} />
         </>
       )}

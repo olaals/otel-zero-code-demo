@@ -41,7 +41,7 @@
             "method": "GET",
             "params": [
               { "key": "q", "value": "{}" },
-              { "key": "limit", "value": "20" },
+              { "key": "limit", "value": "100" },
               { "key": "start", "value": "${__from:date:seconds}" },
               { "key": "end", "value": "${__to:date:seconds}" }
             ]
@@ -83,12 +83,15 @@
         {
           "id": "organize",
           "options": {
+            "excludeByName": {
+              "Status A": true
+            },
             "indexByName": {
               "Trace ID": 0,
-              "Start time A": 1,
-              "Service A": 2,
-              "Name A": 3,
-              "Duration (ms) A": 4,
+              "Start time": 1, "Start time A": 1,
+              "Service": 2, "Service A": 2,
+              "Name": 3, "Name A": 3,
+              "Duration (ms)": 4, "Duration (ms) A": 4,
               "Status B": 5
             },
             "renameByName": {
@@ -185,7 +188,7 @@
       "options": {
         "showHeader": true,
         "cellHeight": "sm",
-        "sortBy": []
+        "sortBy": [{ "displayName": "Start time", "desc": true }]
       }
     },
     {
@@ -241,7 +244,7 @@
       }
     }
   ],
-  "refresh": "",
+  "refresh": "10s",
   "schemaVersion": 39,
   "tags": ["opentelemetry", "traces", "logs", "correlation"],
   "time": { "from": "now-1h", "to": "now" },

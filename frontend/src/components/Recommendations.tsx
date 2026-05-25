@@ -19,10 +19,11 @@ const Section = styled.div`
 `;
 
 interface Props {
-  recommendation: Recommendation;
+  recommendation?: Recommendation | null;
+  error?: boolean;
 }
 
-export function Recommendations({ recommendation }: Props) {
+export function Recommendations({ recommendation, error }: Props) {
   return (
     <StyledCard>
       <Card.Header>
@@ -34,25 +35,33 @@ export function Recommendations({ recommendation }: Props) {
         </Card.HeaderTitle>
       </Card.Header>
       <Card.Content>
-        <Typography variant="body_long">{recommendation.summary}</Typography>
+        {error ? (
+          <Typography variant="body_long" color="danger">
+            Could not load recommended activities
+          </Typography>
+        ) : recommendation ? (
+          <>
+            <Typography variant="body_long">{recommendation.summary}</Typography>
 
-        <Section>
-          <Typography variant="h6">Activities</Typography>
-          <ChipGroup>
-            {recommendation.activities.map((activity) => (
-              <Chip key={activity}>{activity}</Chip>
-            ))}
-          </ChipGroup>
-        </Section>
+            <Section>
+              <Typography variant="h6">Activities</Typography>
+              <ChipGroup>
+                {recommendation.activities.map((activity) => (
+                  <Chip key={activity}>{activity}</Chip>
+                ))}
+              </ChipGroup>
+            </Section>
 
-        <Section>
-          <Typography variant="h6">What to wear</Typography>
-          <ChipGroup>
-            {recommendation.clothing.map((item) => (
-              <Chip key={item} variant="active">{item}</Chip>
-            ))}
-          </ChipGroup>
-        </Section>
+            <Section>
+              <Typography variant="h6">What to wear</Typography>
+              <ChipGroup>
+                {recommendation.clothing.map((item) => (
+                  <Chip key={item} variant="active">{item}</Chip>
+                ))}
+              </ChipGroup>
+            </Section>
+          </>
+        ) : null}
       </Card.Content>
     </StyledCard>
   );

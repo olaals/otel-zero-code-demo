@@ -6,7 +6,7 @@ receivers:
 
 processors:
   batch:
-    timeout: 5s
+    timeout: 1s
     send_batch_size: 1024
 
   filter/tcp-spans:
