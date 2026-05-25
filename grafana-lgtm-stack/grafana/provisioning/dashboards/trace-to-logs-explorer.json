@@ -26,26 +26,79 @@
     },
     {
       "title": "Recent Traces",
-      "description": "Click a Trace ID to filter logs and view trace details below.",
+      "description": "Click a Trace ID to filter logs and view the trace waterfall and correlated logs below. Status shows ERROR (red) if any span in the trace has error status.",
       "type": "table",
-      "datasource": { "type": "tempo", "uid": "tempo" },
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "tempo-infinity" },
       "gridPos": { "h": 10, "w": 24, "x": 0, "y": 1 },
       "targets": [
         {
-          "queryType": "traceqlSearch",
           "refId": "A",
-          "limit": 20,
-          "tableType": "traces",
-          "filters": [
-            {
-              "id": "service-name",
-              "tag": "service.name",
-              "scope": "resource",
-              "operator": "=",
-              "value": [],
-              "valueType": "string"
+          "type": "uql",
+          "source": "url",
+          "format": "table",
+          "url": "http://tempo:3200/api/search",
+          "url_options": {
+            "method": "GET",
+            "params": [
+              { "key": "q", "value": "{}" },
+              { "key": "limit", "value": "20" },
+              { "key": "start", "value": "${__from:date:seconds}" },
+              { "key": "end", "value": "${__to:date:seconds}" }
+            ]
+          },
+          "uql": "parse-json\n| scope \"traces\"\n| project \"Trace ID\"=\"traceID\", \"Start time\"=unixtime_nanoseconds_todatetime(\"startTimeUnixNano\"), \"Service\"=\"rootServiceName\", \"Name\"=\"rootTraceName\", \"Duration (ms)\"=\"durationMs\"",
+          "parser": "uql"
+        },
+        {
+          "refId": "B",
+          "type": "json",
+          "source": "url",
+          "format": "table",
+          "url": "http://tempo:3200/api/search",
+          "url_options": {
+            "method": "GET",
+            "params": [
+              { "key": "q", "value": "{status=error}" },
+              { "key": "limit", "value": "100" },
+              { "key": "start", "value": "${__from:date:seconds}" },
+              { "key": "end", "value": "${__to:date:seconds}" }
+            ]
+          },
+          "root_selector": "traces",
+          "columns": [
+            { "selector": "traceID", "text": "Trace ID", "type": "string" },
+            { "selector": "traceID", "text": "Status", "type": "string" }
+          ],
+          "parser": "backend"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "Trace ID",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "indexByName": {
+              "Trace ID": 0,
+              "Start time A": 1,
+              "Service A": 2,
+              "Name A": 3,
+              "Duration (ms) A": 4,
+              "Status B": 5
+            },
+            "renameByName": {
+              "Start time A": "Start time",
+              "Service A": "Service",
+              "Name A": "Name",
+              "Duration (ms) A": "Duration (ms)",
+              "Status B": "Status"
             }
-          ]
+          }
         }
       ],
       "fieldConfig": {
@@ -65,15 +118,74 @@
                 ]
               }
             ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Start time" },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Duration (ms)" },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Status" },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": { "text": "OK", "color": "green", "index": 0 }
+                    }
+                  },
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "empty",
+                      "result": { "text": "OK", "color": "green", "index": 1 }
+                    }
+                  },
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": ".+",
+                      "result": { "text": "ERROR", "color": "red", "index": 2 }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": { "type": "color-background", "mode": "basic" }
+              },
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
           }
         ]
       },
       "options": {
         "showHeader": true,
         "cellHeight": "sm",
-        "sortBy": [
-          { "displayName": "Start time", "desc": true }
-        ]
+        "sortBy": []
       }
     },
     {

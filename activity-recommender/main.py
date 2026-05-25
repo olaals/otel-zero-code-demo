@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from recommender import get_recommendations
@@ -40,6 +40,16 @@ def recommend(weather: WeatherInput) -> Recommendation:
         weather.precipitation,
         weather.is_day,
     )
+
+    if weather.temperature < 0:
+        logger.error(
+            "Temperature %.1f°C is below 0 — sub-zero recommendations not implemented",
+            weather.temperature,
+        )
+        raise HTTPException(
+            status_code=501,
+            detail="Activity recommendations for temperatures below 0°C are not yet implemented",
+        )
 
     result = get_recommendations(
         temperature=weather.temperature,

@@ -43,3 +43,10 @@ datasources:
       exemplarTraceIdDestinations:
         - name: traceID
           datasourceUid: tempo
+
+  - name: Tempo API (Infinity)
+    type: yesoreyeram-infinity-datasource
+    access: proxy
+    uid: tempo-infinity
+    jsonData:
+      url: http://tempo:3200

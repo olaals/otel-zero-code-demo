@@ -87,7 +87,7 @@ export function WeatherPage() {
       try {
         const [data, recs] = await Promise.all([
           fetchWeather(latitude, longitude),
-          fetchRecommendations(latitude, longitude),
+          fetchRecommendations(latitude, longitude).catch(() => null),
         ]);
         setWeather(data);
         setRecommendation(recs);
