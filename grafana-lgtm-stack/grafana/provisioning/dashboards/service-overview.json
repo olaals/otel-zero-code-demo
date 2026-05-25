@@ -7,15 +7,34 @@
   "panels": [
     {
       "type": "row",
-      "title": "RED Metrics (Rate / Errors / Duration)",
+      "title": "Service Map",
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "collapsed": false
+    },
+    {
+      "title": "Service Map",
+      "description": "Interactive graph of service dependencies derived from trace data. Nodes represent services, edges represent calls between them.",
+      "type": "nodeGraph",
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 1 },
+      "targets": [
+        {
+          "queryType": "serviceMap",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "RED Metrics (Rate / Errors / Duration)",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 11 },
       "collapsed": false
     },
     {
       "title": "Request Rate (req/s)",
       "type": "timeseries",
       "datasource": { "uid": "mimir" },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 1 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 12 },
       "fieldConfig": {
         "defaults": {
           "unit": "reqps",
@@ -47,7 +66,7 @@
       "title": "Error Rate (%)",
       "type": "timeseries",
       "datasource": { "uid": "mimir" },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 1 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 12 },
       "fieldConfig": {
         "defaults": {
           "unit": "percentunit",
@@ -81,7 +100,7 @@
       "title": "P95 Latency",
       "type": "timeseries",
       "datasource": { "uid": "mimir" },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 12 },
       "fieldConfig": {
         "defaults": {
           "unit": "s",
@@ -112,14 +131,14 @@
     {
       "type": "row",
       "title": "Per-Endpoint Breakdown",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 20 },
       "collapsed": false
     },
     {
       "title": "Request Rate by Endpoint",
       "type": "timeseries",
       "datasource": { "uid": "mimir" },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 10 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 21 },
       "fieldConfig": {
         "defaults": {
           "unit": "reqps",
@@ -149,7 +168,7 @@
       "title": "Latency by Endpoint (P50 / P95 / P99)",
       "type": "timeseries",
       "datasource": { "uid": "mimir" },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 10 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 21 },
       "fieldConfig": {
         "defaults": {
           "unit": "s",
@@ -189,14 +208,14 @@
     {
       "type": "row",
       "title": "Service Map & Traces",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 29 },
       "collapsed": false
     },
     {
       "title": "Service-to-Service Request Rate",
       "type": "timeseries",
       "datasource": { "uid": "mimir" },
-      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 19 },
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 30 },
       "fieldConfig": {
         "defaults": {
           "unit": "reqps",
@@ -228,7 +247,7 @@
       "title": "Recent Traces",
       "type": "table",
       "datasource": { "type": "tempo", "uid": "tempo" },
-      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 19 },
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 30 },
       "targets": [
         {
           "queryType": "traceqlSearch",

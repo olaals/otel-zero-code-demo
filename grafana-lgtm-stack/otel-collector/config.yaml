@@ -9,6 +9,12 @@ processors:
     timeout: 5s
     send_batch_size: 1024
 
+  filter/tcp-spans:
+    error_mode: ignore
+    traces:
+      span:
+        - 'IsMatch(attributes["peer.service"], "tcp://.*")'
+
 exporters:
   otlp/tempo:
     endpoint: tempo:4317
@@ -37,7 +43,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [batch]
+      processors: [filter/tcp-spans, batch]
       exporters: [otlp/tempo]
     logs:
       receivers: [otlp]
