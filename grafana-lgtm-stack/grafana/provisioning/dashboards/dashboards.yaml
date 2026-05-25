@@ -3,7 +3,6 @@ apiVersion: 1
 providers:
   - name: "WeatherWatch"
     orgId: 1
-    folder: "WeatherWatch"
     type: file
     disableDeletion: false
     editable: true
