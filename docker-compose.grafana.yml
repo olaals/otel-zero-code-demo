@@ -90,6 +90,7 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
       OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED: "true"
       OTEL_PYTHON_LOG_CORRELATION: "true"
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
     restart: on-failure
 
   app:
@@ -105,6 +106,7 @@ services:
       OTEL_RESOURCE_ATTRIBUTES: "service.namespace=weatherwatch,service.version=1.0.0"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
       ActivityRecommender__BaseUrl: "http://activity-recommender:8000"
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
     depends_on:
       db:
         condition: service_healthy
