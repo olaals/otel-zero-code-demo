@@ -1,0 +1,63 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: weatherwatch
+      POSTGRES_USER: weatherwatch
+      POSTGRES_PASSWORD: weatherwatch
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U weatherwatch"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  aspire-dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:13.3
+    ports:
+      - "18888:18888"   # Dashboard UI
+      - "18889:18889"   # OTLP gRPC receiver
+    environment:
+      DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS: "true"
+
+  activity-recommender:
+    build:
+      context: ./activity-recommender
+    ports:
+      - "8000:8000"
+    environment:
+      OTEL_SERVICE_NAME: "activity-recommender"
+      OTEL_RESOURCE_ATTRIBUTES: "service.namespace=demo,service.version=1.0.0"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://aspire-dashboard:18889"
+      OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED: "true"
+      OTEL_PYTHON_LOG_CORRELATION: "true"
+    depends_on:
+      aspire-dashboard:
+        condition: service_started
+
+  app:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=weatherwatch;Username=weatherwatch;Password=weatherwatch"
+      OTEL_SERVICE_NAME: "weatherwatch"
+      OTEL_RESOURCE_ATTRIBUTES: "service.namespace=demo,service.version=1.0.0"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://aspire-dashboard:18889"
+      ActivityRecommender__BaseUrl: "http://activity-recommender:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      aspire-dashboard:
+        condition: service_started
+      activity-recommender:
+        condition: service_started
+
+volumes:
+  pgdata:
